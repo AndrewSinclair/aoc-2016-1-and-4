@@ -6,6 +6,19 @@
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]))
 
-(deftest a-test1
-  (testing "Basic tests"
-    ))
+(def instruction-string-generator
+  (gen/fmap
+    (partial apply str)
+    (gen/tuple
+      (gen/elements [\R \L])
+      gen/s-pos-int)))
+
+(testing "parsing of input"
+  (defspec parsing-the-instruction-string-will-give-direction-and-distance
+    100
+    (prop/for-all [instruction-str instruction-string-generator]
+      (let [instruction (str->instruction instruction-str)
+            direction   (:direction instruction)
+            distance    (:distance  instruction)]
+        (= instruction-str (str direction distance))))))
+
