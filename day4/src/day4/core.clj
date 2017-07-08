@@ -33,7 +33,7 @@
     s/split-lines
     (map destruct-line)))
 
-(defn check-checksum
+(defn valid-checksum?
   [room]
   (let [encryption (take 5 (:ordered room))
         checksum   (:checksum room)]
@@ -45,7 +45,7 @@
   [rooms]
   (->>
     rooms
-    (filter check-checksum)))
+    (filter valid-checksum?)))
 
 (defn part1 [] nil)
 (defn part2 [] nil)
