@@ -67,12 +67,10 @@
    (->State next-heading next-position)))
 
 (defn calc-displacement
-  [{x1 :x
-    y1 :y}
-   {x2 :x
-    y2 :y}]
-  (let [x (- x2 x1)
-        y (- y2 y1)]
+  [{x1 :x y1 :y}
+   {x2 :x y2 :y}]
+  (let [x (Math/abs (- x2 x1))
+        y (Math/abs (- y2 y1))]
     (+ x y)))
 
 (defn day1

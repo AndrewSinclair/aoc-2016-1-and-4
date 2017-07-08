@@ -19,6 +19,11 @@
     (partial apply str)
     instruction-generator))
 
+(def position-generator
+  (gen/fmap
+    (partial apply ->Position)
+    (gen/tuple gen/int gen/int)))
+
 (testing "parsing of input"
   (defspec parsing-the-instruction-string-will-give-direction-and-distance
     100
@@ -44,17 +49,29 @@
     (prop/for-all [direction (gen/elements directions)
                    heading   (gen/elements headings)]
       (not= heading
-         (calc-next-heading heading direction))
+            (calc-next-heading heading direction))))
 
   (defspec displacing-some-distance-should-always-give-different-state
     100
     (prop/for-all [distance gen/s-pos-int
                    heading  (gen/elements headings)
-                   position (gen/fmap
-                              (partial apply ->Position)
-                              (gen/tuple gen/int gen/int))]
+                   position position-generator]
       (not= position
-            (calc-next-position heading position distance)) 
-    ))
-      )))
+            (calc-next-position heading position distance))))
+
+  (defspec moving-some-distance-should-calc-to-moving-that-far
+    100
+    (prop/for-all [instruction instruction-generator
+                   position    position-generator
+                   heading     (gen/elements headings)]
+      (let [distance      (second instruction)
+            next-position (calc-next-position
+                            heading
+                            position
+                            distance)]
+        (= distance
+           (calc-displacement position next-position)
+      ))))
+  
+  )
 
