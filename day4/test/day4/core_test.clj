@@ -27,6 +27,15 @@
   [names sector checksum]
   (str names "-" sector "[" checksum "]"))
 
+(defn count-occurrence
+  "given a char and a string,
+  get the number of times char exists in the string"
+  [chr text]
+  (->>
+    text
+    (filter #(= chr %))
+    count))
+
 ;; completely random rooms that can be parsed
 ;; but are almost for sure not "real rooms"
 (def random-room-code-generator
@@ -54,5 +63,19 @@
       (= (:sector destructured-room)
          sector)
       (= (:checksum destructured-room)
-         checksum)))))
+         checksum))))
+  (defspec ordering-letters-in-cipher-should-be-in-order-of-frequency
+    (prop/for-all [room random-room-code-generator]
+      (let [room-parts    (destruct-line room)
+            cipher-text   (:cipher-text room-parts)
+            ordered-chars (order-alphabets cipher-text)
+            freqs         (map
+                            #(count-occurrence % cipher-text)
+                            ordered-chars)
+           ordered-freqs  (->>
+                            ordered-chars
+                            (map #(count-occurrence % cipher-text))
+                            sort)]
+        (= ordered-freqs
+           (sort ordered-freqs))))))
 
