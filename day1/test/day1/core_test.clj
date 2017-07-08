@@ -71,7 +71,13 @@
                             distance)]
         (= distance
            (calc-displacement position next-position)
-      ))))
-  
-  )
+      )))))
+
+(deftest part1-answer
+  (is
+    (->>
+      (read-inputs filename) ;; this performs io
+      inputs->instructions
+      part1
+      (= 234))))
 
