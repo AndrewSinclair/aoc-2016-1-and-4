@@ -41,21 +41,23 @@
       (map vector encryption checksum)
       (every? (partial apply =)))))
 
-(defn filter-real-rooms
+(defn part1
   [rooms]
   (->>
     rooms
-    (filter valid-checksum?)))
+    (filter valid-checksum?)
+    (map :sector)
+    (apply +)))
 
-(defn part1 [] nil)
-(defn part2 [] nil)
+(defn part2 [_] nil)
 
 (defn -main
   "Advent of Code '16 - Day 4
   Find the rooms using a silly Checksum and
   silly decryption"
   [& args]
-  (do
-    (println "The answers for day 2 are:")
-    (println "part 1:" (part1))
-    (println "part 2:" (part2))))
+  (let [rooms (parse-input filename)]
+    (do
+      (println "The answers for day 2 are:")
+      (println "part 1:" (part1 rooms))
+      (println "part 2:" (part2 rooms)))))

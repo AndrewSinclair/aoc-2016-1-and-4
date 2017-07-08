@@ -100,10 +100,17 @@
                             sort)]
         (= ordered-freqs
            (sort ordered-freqs)))))
+
   (defspec checksums-should-validate-properly
     (prop/for-all [[cipher checksum] valid-checksum-generator]
       (let [dummy-room (->Room nil (order-alphabets cipher) nil checksum)]
         (valid-checksum? checksum)))
   ))
 
+(deftest day4-answers
+  (let [rooms (parse-input filename)]
+  (testing "part1 is 137896"
+    (is
+    (= 137896 (part1 rooms))
+    (= nil    (part2 rooms))))))
 
