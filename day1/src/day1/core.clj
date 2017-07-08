@@ -71,6 +71,19 @@
            distance)]
    (->State next-heading next-position)))
 
+(defn calc-states-iteratively
+  [{heading   :heading
+    position  :position}
+   {direction :direction
+    distance  :distance}]
+  (let [next-heading (calc-next-heading heading direction)
+        next-positions
+         (->>
+           (range 1 (inc distance))
+           (map
+             #(calc-next-position next-heading position %)))]
+    (map #(->State next-heading %) next-positions)))
+
 (defn calc-displacement
   [{x1 :x y1 :y}
    {x2 :x y2 :y}]
@@ -87,6 +100,10 @@
     (calc-displacement
        (:position initial-state))))
 
+(defn part2
+  [instructions]
+  nil)
+
 (defn -main
   "Advent of Code '16 - Day 1
   How far away is the HQ?"
@@ -97,5 +114,6 @@
           inputs->instructions)]
     (do
       (println "The answers for day 1 are:")
-      (println "part 1:" (part1 instructions)))))
+      (println "part 1:" (part1 instructions))
+      (println "part 2:" (part2 instructions)))))
 
