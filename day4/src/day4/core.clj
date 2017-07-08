@@ -41,6 +41,24 @@
       (map vector encryption checksum)
       (every? (partial apply =)))))
 
+(defn rotate
+  [number alphabet]
+  (->
+    alphabet
+    int
+    (+ number)
+    (- 97)
+    (mod 26)
+    (+ 97)
+    char))
+
+(defn rotate-word
+  [word number]
+  (->>
+    word
+    (map #(if (= % \-) \space (rotate number %)))
+    (apply str)))
+
 (defn part1
   [rooms]
   (->>
@@ -49,7 +67,18 @@
     (map :sector)
     (apply +)))
 
-(defn part2 [_] nil)
+(defn part2 
+  [rooms]
+  (->>
+    rooms
+    (filter valid-checksum?)
+    (map (fn [{cipher-text :cipher-text sector :sector}]
+           (vector
+             (rotate-word cipher-text sector)
+             sector)))
+    (filter #(.contains (first %) "northpole"))
+    first
+    second))
 
 (defn -main
   "Advent of Code '16 - Day 4
@@ -61,3 +90,4 @@
       (println "The answers for day 2 are:")
       (println "part 1:" (part1 rooms))
       (println "part 2:" (part2 rooms)))))
+

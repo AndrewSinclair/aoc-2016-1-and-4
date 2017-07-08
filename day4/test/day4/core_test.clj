@@ -86,6 +86,7 @@
          sector)
       (= (:checksum destructured-room)
          checksum))))
+
   (defspec ordering-letters-in-cipher-should-be-in-order-of-frequency
     (prop/for-all [room random-room-code-generator]
       (let [room-parts    (destruct-line room)
@@ -94,7 +95,7 @@
             freqs         (map
                             #(count-occurrence % cipher-text)
                             ordered-chars)
-           ordered-freqs  (->>
+            ordered-freqs (->>
                             ordered-chars
                             (map #(count-occurrence % cipher-text))
                             sort)]
@@ -104,13 +105,12 @@
   (defspec checksums-should-validate-properly
     (prop/for-all [[cipher checksum] valid-checksum-generator]
       (let [dummy-room (->Room nil (order-alphabets cipher) nil checksum)]
-        (valid-checksum? checksum)))
-  ))
+        (valid-checksum? checksum)))))
 
 (deftest day4-answers
   (let [rooms (parse-input filename)]
-  (testing "part1 is 137896"
-    (is
-    (= 137896 (part1 rooms))
-    (= nil    (part2 rooms))))))
+    (testing "part1 is 137896"
+      (is (= 137896 (part1 rooms))))
+    (testing "part2 is 501"
+      (is (= 501 (part2 rooms))))))
 
