@@ -102,15 +102,37 @@
           (or (= heading :north)
               (= heading :south))
             (every? #(= x (:x %)) next-positions)
-            (every? #(= y (:y %)) next-positions)))))
-  )
+            (every? #(= y (:y %)) next-positions))))))
+
+(testing "function that finds the first duplicate"
+  (defspec no-duplicates-will-return-nil
+    100
+    (prop/for-all [nums (gen/vector-distinct gen/int)]
+      (nil? (find-not-distinct nums))))
+  
+  (defspec if-there-are-duplicates-it-will-return-it
+    100
+    (prop/for-all
+      [nums (gen/let
+              [distinct-nums (gen/vector-distinct gen/int)
+               duplicate (gen/such-that
+                          #(not (.contains distinct-nums %))
+                          gen/int)]
+              {:vec (conj distinct-nums duplicate duplicate)
+               :duplicate duplicate})]
+      (let [{xs :vec duplicate :duplicate} nums]
+        (->>
+          xs
+          shuffle
+          find-not-distinct
+          (= duplicate))))))
 
 
-(deftest part1-answer
-  (is
-    (->>
-      (read-inputs filename) ;; this performs io
-      inputs->instructions
-      part1
-      (= 234))))
+(deftest day1-answers
+  (let [data 
+        (->>
+          (read-inputs filename) ;; this performs io
+          inputs->instructions)]
+    (is (= (part1 data) 234))
+    (is (= (part2 data) 113))))
 

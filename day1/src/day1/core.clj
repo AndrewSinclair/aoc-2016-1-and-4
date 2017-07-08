@@ -101,7 +101,7 @@
   [positions]
   (loop [visited      #{}
         [head & tail] positions]
-    (if (get visited head)
+    (if (or (nil? head) (get visited head))
       head
       (recur (conj visited head) tail))))
 
