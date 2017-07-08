@@ -73,6 +73,21 @@
            (calc-displacement position next-position)
       )))))
 
+(testing "iteratively incrementing position between two states"
+  (defspec number-of-positions-returned-should-be-equal-to-distance
+    100
+    (prop/for-all [instruction instruction-generator
+                   position    position-generator
+                   heading     (gen/elements headings)]
+      (let [distance (second instruction)
+            next-positions (calc-positions-iteratively
+                             heading
+                             position
+                             distance)]
+        (= distance
+           (count next-positions))))
+  ))
+
 (deftest part1-answer
   (is
     (->>

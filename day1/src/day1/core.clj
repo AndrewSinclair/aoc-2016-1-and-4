@@ -84,7 +84,7 @@
     distance  :distance}]
   (let [next-heading   (calc-next-heading heading direction)
         next-positions (calc-positions-iteratively
-                         heading
+                         next-heading
                          position
                          distance)]
     (map #(->State next-heading %) next-positions)))
