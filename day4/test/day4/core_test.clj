@@ -45,6 +45,19 @@
           gen/char-alpha)
         {:num-elements 5}))))
 
+(def all-lower-case-letters
+  (->>
+    (range 0 26)
+    (map (partial + (int \a)))
+    (map char)))
+
+(def word-generator
+  (gen/fmap
+    (partial apply str)
+    (gen/not-empty
+      (gen/vector
+        (gen/elements all-lower-case-letters)))))
+
 (defn concat-room-strings
   [names sector checksum]
   (str names "-" sector "[" checksum "]"))
@@ -106,6 +119,25 @@
     (prop/for-all [[cipher checksum] valid-checksum-generator]
       (let [dummy-room (->Room nil (order-alphabets cipher) nil checksum)]
         (valid-checksum? checksum)))))
+
+(testing "rotating letters to implement the shift cipher"
+  (defspec rotate-a-letter-should-still-give-a-different-letter
+    (prop/for-all [letter (gen/elements all-lower-case-letters)]
+      (not= letter (rotate 1 letter))
+      (some #(= letter %) all-lower-case-letters)))
+  
+  (defspec rotate-a-letter-26-times-gives-same-letter
+    (prop/for-all [letter (gen/elements all-lower-case-letters)]
+      (= letter (rotate 26 letter))))
+
+  (defspec rotate-a-word-should-give-different-word
+    (prop/for-all [word word-generator]
+      (not= word (rotate-word word 1))
+      (every? (fn [letter] (some #(= letter %) all-lower-case-letters)) (seq word))))
+
+  (defspec rotate-a-word-26-times-gives-same-word
+    (prop/for-all [word word-generator]
+      (= word (rotate-word word 26)))))
 
 (deftest day4-answers
   (let [rooms (parse-input filename)]
