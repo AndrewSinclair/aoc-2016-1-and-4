@@ -85,8 +85,26 @@
                              position
                              distance)]
         (= distance
-           (count next-positions))))
-  ))
+           (count next-positions)))))
+
+  (defspec all-position-will-have-same-x-or-y-depending-on-heading
+    100
+    (prop/for-all [instruction instruction-generator
+                   position    position-generator
+                   heading     (gen/elements headings)]
+      (let [distance (second instruction)
+            next-positions (calc-positions-iteratively
+                             heading
+                             position
+                             distance)
+            {x :x y :y} position]
+        (if
+          (or (= heading :north)
+              (= heading :south))
+            (every? #(= x (:x %)) next-positions)
+            (every? #(= y (:y %)) next-positions)))))
+  )
+
 
 (deftest part1-answer
   (is
