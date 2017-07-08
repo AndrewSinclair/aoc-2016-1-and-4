@@ -89,6 +89,22 @@
                          distance)]
     (map #(->State next-heading %) next-positions)))
 
+(defn calc-all-intermediate-states
+  [states-accumulated instruction]
+  (let [last-state  (last states-accumulated)
+        next-states (calc-states-iteratively
+                      last-state
+                      instruction)]
+    (concat states-accumulated next-states)))
+
+(defn find-not-distinct
+  [positions]
+  (loop [visited      #{}
+        [head & tail] positions]
+    (if (get visited head)
+      head
+      (recur (conj visited head) tail))))
+
 (defn calc-displacement
   [{x1 :x y1 :y}
    {x2 :x y2 :y}]
@@ -107,7 +123,12 @@
 
 (defn part2
   [instructions]
-  nil)
+  (->>
+    instructions
+    (reduce calc-all-intermediate-states [initial-state])
+    (map :position)
+    find-not-distinct
+    (calc-displacement (:position initial-state))))
 
 (defn -main
   "Advent of Code '16 - Day 1
