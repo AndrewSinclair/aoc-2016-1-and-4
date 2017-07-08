@@ -6,9 +6,9 @@
 (defrecord Room [cipher-text ordered sector checksum])
 
 (defn order-alphabets
-  [encryption]
+  [cipher-text]
   (->>
-    encryption
+    cipher-text
     (filter #(Character/isLetter %))
     sort
     frequencies

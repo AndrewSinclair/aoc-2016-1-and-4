@@ -18,10 +18,32 @@
     (gen/not-empty
       (gen/vector room-substring-generator))))
 
-(def room-checksum-generator
+;; This generates 5 random chars
+(def random-room-checksum-generator
   (gen/fmap
     (comp clojure.string/lower-case (partial apply str))
     (gen/vector gen/char-alpha 5)))
+
+;; This generates cipher-checksum pairs that are valid checksum
+(def valid-checksum-generator
+  (gen/fmap
+    (fn [[nums checksum]]
+      (vector
+        (->>
+          (map #(replicate %1 %2) nums checksum)
+          (map (partial apply str))
+          (apply str)
+          seq
+          shuffle
+          (apply str))
+        (apply str checksum)))
+    (gen/tuple
+      (gen/vector gen/s-pos-int 5)
+      (gen/vector-distinct
+        (gen/fmap
+          clojure.string/lower-case
+          gen/char-alpha)
+        {:num-elements 5}))))
 
 (defn concat-room-strings
   [names sector checksum]
@@ -44,7 +66,7 @@
     (gen/tuple
       room-cipher-alpha-generator
       gen/s-pos-int
-      room-checksum-generator)))
+      random-room-checksum-generator)))
 
 (testing "room generation and destructuring"
   (defspec destructuring-rooms-should-give-back-parts
@@ -52,7 +74,7 @@
                     (gen/tuple
                       room-cipher-alpha-generator
                       gen/s-pos-int
-                      room-checksum-generator)]
+                      random-room-checksum-generator)]
       (let [room (concat-room-strings
                    cipher
                    sector
@@ -77,5 +99,11 @@
                             (map #(count-occurrence % cipher-text))
                             sort)]
         (= ordered-freqs
-           (sort ordered-freqs))))))
+           (sort ordered-freqs)))))
+  (defspec checksums-should-validate-properly
+    (prop/for-all [[cipher checksum] valid-checksum-generator]
+      (let [dummy-room (->Room nil (order-alphabets cipher) nil checksum)]
+        (valid-checksum? checksum)))
+  ))
+
 
