@@ -7,7 +7,12 @@
 (defrecord Position    [x y])
 (defrecord State       [heading position])
 
-(defn get-input
+(def initial-state
+  (->State
+    :north
+    (->Position 0 0)))
+
+(defn read-inputs
   [filename]
   (-> filename
       slurp
@@ -26,7 +31,7 @@
 
 (defn inputs->instructions
   [inputs]
-  (map ->Instruction inputs))
+  (map str->instruction inputs))
 
 (defn calc-next-heading
   [heading direction]
@@ -73,15 +78,24 @@
         y (Math/abs (- y2 y1))]
     (+ x y)))
 
-(defn day1
-  []
-  nil)
+(defn part1
+  [instructions]
+  (->>
+    instructions
+    (reduce calc-next-state initial-state)
+    :position
+    (calc-displacement
+       (:position initial-state))))
 
 (defn -main
   "Advent of Code '16 - Day 1
   How far away is the HQ?"
   [& args]
-  (do
-    (println "The answers for day 1 are:")
-    (println "part 1:" (day1))))
+  (let [instructions
+        (->>
+          (read-inputs filename)
+          inputs->instructions)]
+    (do
+      (println "The answers for day 1 are:")
+      (println "part 1:" (part1 instructions)))))
 
