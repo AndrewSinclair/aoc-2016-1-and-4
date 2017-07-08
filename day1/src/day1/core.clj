@@ -71,17 +71,22 @@
            distance)]
    (->State next-heading next-position)))
 
+(defn calc-positions-iteratively
+  [heading position distance]
+  (->>
+    (range 1 (inc distance))
+    (map #(calc-next-position heading position %))))
+
 (defn calc-states-iteratively
   [{heading   :heading
     position  :position}
    {direction :direction
     distance  :distance}]
-  (let [next-heading (calc-next-heading heading direction)
-        next-positions
-         (->>
-           (range 1 (inc distance))
-           (map
-             #(calc-next-position next-heading position %)))]
+  (let [next-heading   (calc-next-heading heading direction)
+        next-positions (calc-positions-iteratively
+                         heading
+                         position
+                         distance)]
     (map #(->State next-heading %) next-positions)))
 
 (defn calc-displacement
