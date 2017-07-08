@@ -3,6 +3,33 @@
 
 (def filename "resources/input.txt")
 
+(defn order-alphabets
+  [encryption]
+    (->>
+      encryption
+      (filter #(Character/isLetter %))
+        sort
+        frequencies
+        (sort-by second >)
+        (map first)))
+
+(defn destruct-line
+    [line]
+    (let [[_ encryption sector checksum]
+            (re-matches #"(.*)-(\d+)\[(\w+)\]" line)]
+      {:cipher-text encryption
+       :ordered    (order-alphabets encryption)
+       :sector     (Integer. sector)
+       :checksum   checksum}))
+
+(defn parse-input
+    [filename]
+    (->>
+      filename
+      slurp
+      s/split-lines
+      (map destruct-line)))
+
 (defn part1 [] nil)
 (defn part2 [] nil)
 
