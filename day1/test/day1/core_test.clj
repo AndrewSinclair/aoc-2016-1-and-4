@@ -6,12 +6,18 @@
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]))
 
+(def directions [\R \L])
+(def headings [:north :east :south :west])
+
+(def instruction-generator
+  (gen/tuple
+    (gen/elements directions)
+    gen/s-pos-int))
+
 (def instruction-string-generator
   (gen/fmap
     (partial apply str)
-    (gen/tuple
-      (gen/elements [\R \L])
-      gen/s-pos-int)))
+    instruction-generator))
 
 (testing "parsing of input"
   (defspec parsing-the-instruction-string-will-give-direction-and-distance
@@ -21,4 +27,15 @@
             direction   (:direction instruction)
             distance    (:distance  instruction)]
         (= instruction-str (str direction distance))))))
+
+(testing "changing of state (heading and position)"
+  (defspec turning-same-way-4-times-will-face-you-in-same-dirction
+    100
+    (prop/for-all [direction (gen/elements directions)
+                   heading   (gen/elements headings)]
+      (= heading
+         (->>
+           direction
+           (replicate 4)
+           (reduce calc-next-heading heading))))))
 
