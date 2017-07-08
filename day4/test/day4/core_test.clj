@@ -23,17 +23,36 @@
     (comp clojure.string/lower-case (partial apply str))
     (gen/vector gen/char-alpha 5)))
 
+(defn concat-room-strings
+  [names sector checksum]
+  (str names "-" sector "[" checksum "]"))
+
 ;; completely random rooms that can be parsed
 ;; but are almost for sure not "real rooms"
 (def random-room-code-generator
   (gen/fmap
-    (fn [[names number checksum]]
-      (str names "-" number "[" checksum "]"))
+    (partial apply concat-room-strings)
     (gen/tuple
       room-cipher-alpha-generator
       gen/s-pos-int
       room-checksum-generator)))
 
-(testing "day4"
-  #_(defspec foo-bar)
-)
+(testing "room generation and destructuring"
+  (defspec destructuring-rooms-should-give-back-parts
+    (prop/for-all [[cipher sector checksum]
+                    (gen/tuple
+                      room-cipher-alpha-generator
+                      gen/s-pos-int
+                      room-checksum-generator)]
+      (let [room (concat-room-strings
+                   cipher
+                   sector
+                   checksum)
+            destructured-room (destruct-line room)]
+      (= (:cipher-text destructured-room)
+         cipher)
+      (= (:sector destructured-room)
+         sector)
+      (= (:checksum destructured-room)
+         checksum)))))
+
